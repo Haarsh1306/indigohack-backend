@@ -97,7 +97,7 @@ router.post("/signin", async (req, res) => {
     const validation = loginSchema.safeParse(req.body);
 
     if (!validation.success) {
-      return res.status(400).json({ error: validation.error.errors });
+      return res.status(400).json({ error: "Invalid input" });
     }
 
     const { email, password } = req.body;
@@ -106,14 +106,15 @@ router.post("/signin", async (req, res) => {
     ]);
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: "Email is not registered" });
     }
+  
 
     const user = rows[0];
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(400).json({ error: "Invalid password" });
+      return res.status(401).json({ error: "Wrong password" });
     }
 
     const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET, {
