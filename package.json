@@ -1,0 +1,19 @@
+{
+  "name": "indigohack-backend",
+  "version": "1.0.0",
+  "description": "indigohack backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Haarsh1306/indigohack-backend.git"
+  },
+  "author": "harsh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Haarsh1306/indigohack-backend/issues"
+  },
+  "homepage": "https://github.com/Haarsh1306/indigohack-backend#readme"
+}
