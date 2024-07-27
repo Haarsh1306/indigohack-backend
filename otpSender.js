@@ -37,7 +37,7 @@ async function verifyOTP(userId, otp) {
   await pool.query("UPDATE users SET is_verified = TRUE WHERE user_id = $1", [
     userId,
   ]);
-  await pool.query("DELETE FROM otps WHERE user_id = $1", [userId]);
+  await pool.query("UPDATE otps SET is_used = TRUE WHERE user_id = $1", [userId]);
 
   return true;
 }
