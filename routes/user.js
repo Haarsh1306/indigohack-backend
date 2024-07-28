@@ -16,7 +16,7 @@ router.post("/signup", async (req, res) => {
     const validation = signupSchema.safeParse(req.body);
 
     if (!validation.success) {
-      return res.status(400).json({ error: validation.error.errors });
+      return res.status(400).json({ error: "Invalid Input" });
     }
 
     const { name, email, password } = req.body;
@@ -57,7 +57,7 @@ router.post("/verify-otp", async (req, res) => {
     const validation = veryfyOTPSchema.safeParse(req.body);
 
     if (!validation.success) {
-      return res.status(400).json({ error: validation.error.errors });
+      return res.status(400).json({ error: "Invalid Input" });
     }
 
     const { email, otp } = req.body;
@@ -74,7 +74,7 @@ router.post("/verify-otp", async (req, res) => {
     const isVerified = await verifyOTP(userId, otp);
 
     if (isVerified) {
-      res.json({ message: "Email verified successfully" });
+      res.status(201).json({ message: "Email verified successfully", isVerified });
     } else {
       res.status(400).json({ message: "Invalid or expired OTP" });
     }
