@@ -1,16 +1,5 @@
-const nodemailer = require("nodemailer");
 const pool = require("./db/db");
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+const sendEmail = require("./email");
 
 async function sendOTP(email, userId) {
 
@@ -21,17 +10,10 @@ async function sendOTP(email, userId) {
       "INSERT INTO otps (user_id, otp_code, expires_at) VALUES ($1, $2, $3)",
       [userId, otpCode, otpExpiration]
     );
-  const mailOptions = {
-    from: {
-      name: "Indigohack",
-      address: process.env.EMAIL,
-    },
-    to: email,
-    subject: "Your OTP for verification at Indigohack",
-    text: `Your OTP is: ${otpCode}`,
-  };
 
-  await transporter.sendMail(mailOptions);
+    const subject = "Your OTP for verification at Indigohack";
+    const message = `Your OTP is: ${otpCode}`;
+    await sendEmail(email, subject, message);
 }
 
 async function verifyOTP(userId, otp) {

@@ -44,10 +44,11 @@ router.post("/signup", async (req, res) => {
     res.status(201).json({
       message: "User created successfully. Please verify your email.",
       userId,
+      userEmail: email
     });
   } catch (error) {
     console.error("Error in signup:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -74,7 +75,9 @@ router.post("/verify-otp", async (req, res) => {
     const isVerified = await verifyOTP(userId, otp);
 
     if (isVerified) {
-      res.status(201).json({ message: "Email verified successfully", isVerified });
+      res
+        .status(201)
+        .json({ message: "Email verified successfully", isVerified });
     } else {
       res.status(400).json({ message: "Invalid or expired OTP" });
     }
@@ -107,7 +110,12 @@ router.post("/signin", async (req, res) => {
       await sendOTP(email, user.user_id);
       return res
         .status(401)
-        .json({ error: "Email not verified, OTP sent again" });
+        .json({
+          error: "Email not verified, OTP sent again",
+          isVerified: user.is_verified,
+          userId: user.user_id,
+          userEmail: user.email,
+        });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -120,7 +128,7 @@ router.post("/signin", async (req, res) => {
       expiresIn: "1d",
     });
 
-    res.json({ token });
+    res.json({ token, userId: user.user_id, userEmail: user.email });
   } catch (error) {
     console.error("Error in signin:", error);
     res.status(500).json({ message: "Internal server error" });
