@@ -15,4 +15,9 @@ const loginSchema = zod.object({
     email: zod.string().email(),
     password: zod.string().min(6).max(50)
 }); 
-module.exports = {signupSchema, veryfyOTPSchema,loginSchema};
+
+const subscriptionSchema = zod.object({
+    user_id: zod.string().uuid(),
+    flight_id: zod.string()
+});
+module.exports = {signupSchema, veryfyOTPSchema,loginSchema, subscriptionSchema};
