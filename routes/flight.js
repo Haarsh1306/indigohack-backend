@@ -4,7 +4,7 @@ const pool = require("../db/db");
 const authenticate = require("../middlewares/authenticate");
 const { subscriptionSchema } = require("../validation/validation");
 
-router.get("", authenticate, async (req, res) => {
+router.get("", async (req, res) => {
   try {
     const query = `
         SELECT 
