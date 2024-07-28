@@ -21,6 +21,8 @@ router.post("/signup", async (req, res) => {
 
     const { name, email, password } = req.body;
 
+    //using transaction
+    await pool.query('BEGIN');
     const { rowCount } = await pool.query(
       "SELECT 1 FROM users WHERE email = $1",
       [email]
@@ -40,6 +42,9 @@ router.post("/signup", async (req, res) => {
     const userId = rows[0].user_id;
 
     await sendOTP(email, userId);
+
+    // commit transaction
+    await pool.query('COMMIT');
 
     res.status(201).json({
       message: "User created successfully. Please verify your email.",
@@ -95,6 +100,8 @@ router.post("/signin", async (req, res) => {
     if (!validation.success) {
       return res.status(400).json({ error: "Invalid input" });
     }
+    // Transaction start
+    await pool.query('BEGIN');
 
     const { email, password } = req.body;
     const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [
@@ -117,6 +124,9 @@ router.post("/signin", async (req, res) => {
           userEmail: user.email,
         });
     }
+
+    //commit transaction
+    await pool.query('COMMIT');
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
