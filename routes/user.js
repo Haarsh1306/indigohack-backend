@@ -38,15 +38,8 @@ router.post("/signup", async (req, res) => {
     );
 
     const userId = rows[0].user_id;
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiration = new Date(Date.now() + 10 * 60 * 1000);
 
-    await pool.query(
-      "INSERT INTO otps (user_id, otp_code, expires_at) VALUES ($1, $2, $3)",
-      [userId, otpCode, otpExpiration]
-    );
-
-    await sendOTP(email, otpCode);
+    await sendOTP(email, userId);
 
     res.status(201).json({
       message: "User created successfully. Please verify your email.",
@@ -108,9 +101,15 @@ router.post("/signin", async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ error: "Email is not registered" });
     }
-  
 
     const user = rows[0];
+    if (!user.is_verified) {
+      await sendOTP(email, user.user_id);
+      return res
+        .status(401)
+        .json({ error: "Email not verified, OTP sent again" });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {

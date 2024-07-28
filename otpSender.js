@@ -12,7 +12,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function sendOTP(email, otp) {
+async function sendOTP(email, userId) {
+
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiration = new Date(Date.now() + 10 * 60 * 1000);
+
+    await pool.query(
+      "INSERT INTO otps (user_id, otp_code, expires_at) VALUES ($1, $2, $3)",
+      [userId, otpCode, otpExpiration]
+    );
   const mailOptions = {
     from: {
       name: "Indigohack",
@@ -20,7 +28,7 @@ async function sendOTP(email, otp) {
     },
     to: email,
     subject: "Your OTP for verification at Indigohack",
-    text: `Your OTP is: ${otp}`,
+    text: `Your OTP is: ${otpCode}`,
   };
 
   await transporter.sendMail(mailOptions);
