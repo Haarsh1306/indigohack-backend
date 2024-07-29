@@ -230,9 +230,6 @@ router.put("/update/:flight_id", async (req, res) => {
     }
 
 
-
-
-
     await pool.query("COMMIT");
     
     res.status(200).json({
