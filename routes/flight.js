@@ -10,7 +10,7 @@ const {
 const generateUpdateMessage  = require("../generateMessage");
 const { sendEmailMessage } = require("../kafka/producer");
 
-router.get("", async (req, res) => {
+router.get("",authenticate, async (req, res) => {
   try {
     const query = `
         SELECT 
@@ -33,7 +33,7 @@ router.get("", async (req, res) => {
   }
 });
 
-router.post("/create", async (req, res) => {
+router.post("/create",authenticate, async (req, res) => {
   const validation = createFlightSchema.safeParse(req.body);
   if (!validation.success) {
     return res.status(400).json({ error: "Invalid input" });
