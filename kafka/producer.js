@@ -39,10 +39,10 @@ const disconnectProducer = async () => {
   await producer.disconnect();
 };
 
-const sendEmailMessage = async (email, message) => {  
+const sendEmailMessage = async (emails, message) => {  
     await producer.send({
         topic: "indigohack-email",
-        messages: [{ value: JSON.stringify({ email, message }) }],
+        messages: [{ value: JSON.stringify({ emails, message }) }],
     });
   }
 

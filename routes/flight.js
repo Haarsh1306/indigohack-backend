@@ -220,9 +220,16 @@ router.put("/update/:flight_id", async (req, res) => {
     );
 
     const emailList = email.rows.map((row) => row.email);
+    for (const email of emailList) {
+      await pool.query(
+        'INSERT INTO notifications(flight_id, recipient, message, method) VALUES($1, $2, $3, $4)',[flight_id, email, message,"Email"]
+      )
+    }
     if(emailList.length > 0){
       sendEmailMessage(emailList, message);
     }
+
+
 
 
 
