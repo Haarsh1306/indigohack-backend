@@ -35,21 +35,22 @@ router.post("/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const { rows } = await pool.query(
-      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING user_id",
+      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
       [name, email, hashedPassword]
     );
 
-    const userId = rows[0].user_id;
+    const user = rows[0];
 
-    await sendOTP(email, userId);
+    await sendOTP(email, user.user_id);
 
     // commit transaction
     await pool.query('COMMIT');
 
     res.status(201).json({
       message: "User created successfully. Please verify your email.",
-      userId,
-      userEmail: email
+      userId: user.user_id,
+      userEmail: user.email,
+      userName: user.name
     });
   } catch (error) {
     console.error("Error in signup:", error);
@@ -73,10 +74,11 @@ router.post("/verify-otp", async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
 
     const userId = rows[0].user_id;
+
     const isVerified = await verifyOTP(userId, otp);
 
     if (isVerified) {
@@ -84,11 +86,11 @@ router.post("/verify-otp", async (req, res) => {
         .status(201)
         .json({ message: "Email verified successfully", isVerified });
     } else {
-      res.status(400).json({ message: "Invalid or expired OTP" });
+      res.status(400).json({ error: "Invalid or expired OTP" });
     }
   } catch (error) {
     console.error("Error in verify OTP:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ errror: "Internal server error" });
   }
 });
 
@@ -113,6 +115,13 @@ router.post("/signin", async (req, res) => {
     }
 
     const user = rows[0];
+    
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Wrong password" });
+    }
+
     if (!user.is_verified) {
       await sendOTP(email, user.user_id);
       return res
@@ -122,17 +131,12 @@ router.post("/signin", async (req, res) => {
           isVerified: user.is_verified,
           userId: user.user_id,
           userEmail: user.email,
+          userName: user.name
         });
     }
 
     //commit transaction
     await pool.query('COMMIT');
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: "Wrong password" });
-    }
 
     const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET, {
       expiresIn: "1d",

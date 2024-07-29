@@ -2,18 +2,32 @@ const pool = require("./db/db");
 const sendEmail = require("./email");
 
 async function sendOTP(email, userId) {
-
   const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiration = new Date(Date.now() + 10 * 60 * 1000);
+  const otpExpiration = new Date(Date.now() + 10 * 60 * 1000);
 
+  await pool.query("BEGIN");
+
+  const checkRes = await pool.query("SELECT * FROM otps WHERE user_id = $1", [
+    userId,
+  ]);
+
+  if (checkRes.rowCount > 0) {
+    await pool.query(
+      "UPDATE otps SET otp_code = $1, expires_at = $2 WHERE user_id = $3",
+      [otpCode, otpExpiration, userId]
+    );
+  } else {
     await pool.query(
       "INSERT INTO otps (user_id, otp_code, expires_at) VALUES ($1, $2, $3)",
       [userId, otpCode, otpExpiration]
     );
+  }
 
-    const subject = "Your OTP for verification at Indigohack";
-    const message = `Your OTP is: ${otpCode}`;
-    await sendEmail(email, subject, message);
+  const subject = "Your OTP for verification at Indigohack";
+  const message = `Your OTP is ${otpCode}`;
+  await sendEmail(email, subject, message);
+
+  await pool.query("COMMIT");
 }
 
 async function verifyOTP(userId, otp) {
@@ -27,7 +41,9 @@ async function verifyOTP(userId, otp) {
   await pool.query("UPDATE users SET is_verified = TRUE WHERE user_id = $1", [
     userId,
   ]);
-  await pool.query("UPDATE otps SET is_used = TRUE WHERE user_id = $1", [userId]);
+  await pool.query("UPDATE otps SET is_used = TRUE WHERE user_id = $1", [
+    userId,
+  ]);
 
   return true;
 }
