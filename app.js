@@ -13,7 +13,7 @@ app.use('/api/v1/user', require('./routes/user'));
 app.use('/api/v1/flight', require('./routes/flight'));
 
 app.get('/api/v1/getme', authenticateToken, (req, res) => {
-    res.json({ message: 'Authenticated', user: req.user });
+    res.json({ message: 'Authenticated', userId : req.user.userId, userEmail : req.user.email, userName : req.user.name });
 });
 
 startConsumer().catch(console.error);

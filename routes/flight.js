@@ -5,8 +5,10 @@ const authenticate = require("../middlewares/authenticate");
 const {
   subscriptionSchema,
   createFlightSchema,
+  updateFlightSchema,
 } = require("../validation/validation");
-const { generateUpdateMessage } = require("../generateMessage");
+const generateUpdateMessage  = require("../generateMessage");
+const { sendEmailMessage } = require("../kafka/producer");
 
 router.get("", async (req, res) => {
   try {
@@ -88,10 +90,20 @@ router.post("/subscribe", authenticate, async (req, res) => {
   const { user_id, flight_id } = req.body;
 
   try {
+    const checkResult = await pool.query(
+      `SELECT * FROM subscriptions WHERE user_id = $1 AND flight_id = $2`,
+      [user_id, flight_id]
+    );
+
+    if (checkResult.rows.length > 0) {
+      return res.status(400).json({ error: "Subscription already exists" });
+    }
+
     const result = await pool.query(
       `INSERT INTO subscriptions (user_id, flight_id) VALUES ($1, $2) RETURNING *`,
       [user_id, flight_id]
     );
+
     res.status(201).json({
       message: "Subscription created",
       subscription: result.rows[0],
@@ -102,7 +114,34 @@ router.post("/subscribe", authenticate, async (req, res) => {
   }
 });
 
-router.put("/:flight_id", async (req, res) => {
+router.get("/subscriptions/:user_id", authenticate, async (req, res) => {
+  const { user_id } = req.params;
+  if (!user_id) {
+    return res.status(400).json({ error: "Invalid input" });
+  }
+  try {
+    const result = await pool.query(
+      `SELECT flight_id FROM subscriptions WHERE user_id = $1`,
+      [user_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No subscriptions found for this user" });
+    }
+
+    const flightIds = result.rows.map((row) => row.flight_id);
+    res.status(200).json({
+      message: "Subscriptions retrieved successfully",
+      flightIds: flightIds,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/update/:flight_id", async (req, res) => {
   const validation = updateFlightSchema.safeParse(req.body);
   if (!validation.success) {
     return res.status(400).json({ error: "Invalid input" });
@@ -156,20 +195,36 @@ router.put("/:flight_id", async (req, res) => {
     return res.status(400).json({ error: "No fields to update" });
   }
 
-  
   query +=
     fields.join(", ") +
     " WHERE flight_id = $" +
     (fields.length + 1) +
     " RETURNING *";
+
   values.push(flight_id);
 
   try {
+    await pool.query("BEGIN");
     const result = await pool.query(query, values);
+ 
     const updatedFlight = result.rows[0];
-
+  
     const message = generateUpdateMessage(updatedFlight);
 
+    const email = await pool.query(
+      `SELECT u.email 
+      FROM subscriptions
+      JOIN users u ON u.user_id = subscriptions.user_id
+      WHERE flight_id = $1`,
+      [flight_id]
+    );
+
+    const emailList = email.rows.map((row) => row.email);
+
+    sendEmailMessage(emailList, message)
+
+    await pool.query("COMMIT");
+    
     res.status(200).json({
       message: "Flight details updated successfully",
       updatedFlight,

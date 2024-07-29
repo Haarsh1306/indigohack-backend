@@ -43,4 +43,4 @@ const updateFlightSchema = zod.object({
     actual_arrival: zod.string().optional()
 
 });
-module.exports = {signupSchema, veryfyOTPSchema,loginSchema, subscriptionSchema , createFlightSchema};
+module.exports = {signupSchema, veryfyOTPSchema,loginSchema, subscriptionSchema , createFlightSchema, updateFlightSchema};

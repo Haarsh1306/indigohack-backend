@@ -22,7 +22,7 @@ router.post("/signup", async (req, res) => {
     const { name, email, password } = req.body;
 
     //using transaction
-    await pool.query('BEGIN');
+    await pool.query("BEGIN");
     const { rowCount } = await pool.query(
       "SELECT 1 FROM users WHERE email = $1",
       [email]
@@ -44,13 +44,13 @@ router.post("/signup", async (req, res) => {
     await sendOTP(email, user.user_id);
 
     // commit transaction
-    await pool.query('COMMIT');
+    await pool.query("COMMIT");
 
     res.status(201).json({
       message: "User created successfully. Please verify your email.",
       userId: user.user_id,
       userEmail: user.email,
-      userName: user.name
+      userName: user.name,
     });
   } catch (error) {
     console.error("Error in signup:", error);
@@ -103,7 +103,7 @@ router.post("/signin", async (req, res) => {
       return res.status(400).json({ error: "Invalid input" });
     }
     // Transaction start
-    await pool.query('BEGIN');
+    await pool.query("BEGIN");
 
     const { email, password } = req.body;
     const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [
@@ -115,7 +115,7 @@ router.post("/signin", async (req, res) => {
     }
 
     const user = rows[0];
-    
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
@@ -124,23 +124,25 @@ router.post("/signin", async (req, res) => {
 
     if (!user.is_verified) {
       await sendOTP(email, user.user_id);
-      return res
-        .status(401)
-        .json({
-          error: "Email not verified, OTP sent again",
-          isVerified: user.is_verified,
-          userId: user.user_id,
-          userEmail: user.email,
-          userName: user.name
-        });
+      return res.status(401).json({
+        error: "Email not verified, OTP sent again",
+        isVerified: user.is_verified,
+        userId: user.user_id,
+        userEmail: user.email,
+        userName: user.name,
+      });
     }
 
     //commit transaction
-    await pool.query('COMMIT');
+    await pool.query("COMMIT");
 
-    const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { userId: user.user_id, userEmail: user.email, userName: user.name },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
 
     res.json({ token, userId: user.user_id, userEmail: user.email });
   } catch (error) {
