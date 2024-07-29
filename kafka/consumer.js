@@ -26,6 +26,7 @@ const startConsumer = async () => {
         const value = JSON.parse(message.value.toString());
         const subject = "Indigohack flight update email";
       await sendEmail(value.email ,subject, value.message);
+      
     },
   });
 };

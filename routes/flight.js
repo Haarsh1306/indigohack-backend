@@ -221,8 +221,10 @@ router.put("/update/:flight_id", async (req, res) => {
 
     const emailList = email.rows.map((row) => row.email);
     if(emailList.length > 0){
-      sendEmailMessage(emailList, message)
+      sendEmailMessage(emailList, message);
     }
+
+
 
     await pool.query("COMMIT");
     
