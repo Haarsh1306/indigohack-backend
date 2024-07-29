@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db/db");
 const authenticate = require("../middlewares/authenticate");
-const { subscriptionSchema } = require("../validation/validation");
+const { subscriptionSchema, createFlightSchema } = require("../validation/validation");
 
 router.get("", async (req, res) => {
   try {
