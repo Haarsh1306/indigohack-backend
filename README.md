@@ -29,7 +29,7 @@ The backend is built using Node.js and Express.js, providing a robust and scalab
 
 - Node.js
 - Express.js
-- MongoDB (assumed, please adjust if different)
+- Postgres 
 - Zod (for input validation)
 - Kafka (for email queuing)
 - Nodemailer (for sending emails)
