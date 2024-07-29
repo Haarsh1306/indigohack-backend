@@ -32,4 +32,15 @@ const createFlightSchema = zod.object({
     actual_departure: zod.string(),
     actual_arrival: zod.string()
 });
+
+const updateFlightSchema = zod.object({
+    status: zod.string().optional(),
+    departure_gate: zod.string().optional(),
+    arrival_gate: zod.string().optional(),
+    scheduled_departure: zod.string().optional(),
+    scheduled_arrival: zod.string().optional(),
+    actual_departure: zod.string().optional(),
+    actual_arrival: zod.string().optional()
+
+});
 module.exports = {signupSchema, veryfyOTPSchema,loginSchema, subscriptionSchema , createFlightSchema};

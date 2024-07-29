@@ -2,7 +2,11 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db/db");
 const authenticate = require("../middlewares/authenticate");
-const { subscriptionSchema, createFlightSchema } = require("../validation/validation");
+const {
+  subscriptionSchema,
+  createFlightSchema,
+} = require("../validation/validation");
+const { generateUpdateMessage } = require("../generateMessage");
 
 router.get("", async (req, res) => {
   try {
@@ -27,11 +31,10 @@ router.get("", async (req, res) => {
   }
 });
 
-router.post('/create', async (req, res) => {
-
+router.post("/create", async (req, res) => {
   const validation = createFlightSchema.safeParse(req.body);
-  if(!validation.success) {
-    return res.status(400).json({ error: 'Invalid input' });
+  if (!validation.success) {
+    return res.status(400).json({ error: "Invalid input" });
   }
 
   const {
@@ -43,9 +46,8 @@ router.post('/create', async (req, res) => {
     scheduled_departure,
     scheduled_arrival,
     actual_departure,
-    actual_arrival
+    actual_arrival,
   } = req.body;
-
 
   try {
     const result = await pool.query(
@@ -64,18 +66,17 @@ router.post('/create', async (req, res) => {
         scheduled_departure,
         scheduled_arrival,
         actual_departure,
-        actual_arrival
+        actual_arrival,
       ]
     );
 
     const newFlight = result.rows[0];
     res.status(201).json({
-      message: 'Flight created',
-      flight: newFlight
+      message: "Flight created",
+      flight: newFlight,
     });
   } catch (error) {
-    
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -98,6 +99,84 @@ router.post("/subscribe", authenticate, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Error creating subscription");
+  }
+});
+
+router.put("/:flight_id", async (req, res) => {
+  const validation = updateFlightSchema.safeParse(req.body);
+  if (!validation.success) {
+    return res.status(400).json({ error: "Invalid input" });
+  }
+
+  const flight_id = req.params.flight_id;
+  const {
+    status,
+    departure_gate,
+    arrival_gate,
+    scheduled_arrival,
+    scheduled_departure,
+    actual_departure,
+    actual_arrival,
+  } = req.body;
+
+  const fields = [];
+  const values = [];
+  let query = "UPDATE flight_data SET ";
+
+  if (status) {
+    fields.push(`status = $${fields.length + 1}`);
+    values.push(status);
+  }
+  if (departure_gate) {
+    fields.push(`departure_gate = $${fields.length + 1}`);
+    values.push(departure_gate);
+  }
+  if (arrival_gate) {
+    fields.push(`arrival_gate = $${fields.length + 1}`);
+    values.push(arrival_gate);
+  }
+  if (scheduled_departure) {
+    fields.push(`scheduled_departure = $${fields.length + 1}`);
+    values.push(scheduled_departure);
+  }
+  if (scheduled_arrival) {
+    fields.push(`scheduled_arrival = $${fields.length + 1}`);
+    values.push(scheduled_arrival);
+  }
+  if (actual_departure) {
+    fields.push(`actual_departure = $${fields.length + 1}`);
+    values.push(actual_departure);
+  }
+  if (actual_arrival) {
+    fields.push(`actual_arrival = $${fields.length + 1}`);
+    values.push(actual_arrival);
+  }
+
+  if (fields.length === 0) {
+    return res.status(400).json({ error: "No fields to update" });
+  }
+
+  
+  query +=
+    fields.join(", ") +
+    " WHERE flight_id = $" +
+    (fields.length + 1) +
+    " RETURNING *";
+  values.push(flight_id);
+
+  try {
+    const result = await pool.query(query, values);
+    const updatedFlight = result.rows[0];
+
+    const message = generateUpdateMessage(updatedFlight);
+
+    res.status(200).json({
+      message: "Flight details updated successfully",
+      updatedFlight,
+      emailMessage: message,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
