@@ -27,6 +27,58 @@ router.get("", async (req, res) => {
   }
 });
 
+router.post('/create', async (req, res) => {
+
+  const validation = createFlightSchema.safeParse(req.body);
+  if(!validation.success) {
+    return res.status(400).json({ error: 'Invalid input' });
+  }
+
+  const {
+    flight_id,
+    airline,
+    status,
+    departure_gate,
+    arrival_gate,
+    scheduled_departure,
+    scheduled_arrival,
+    actual_departure,
+    actual_arrival
+  } = req.body;
+
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO flight_data (
+        flight_id, airline, status, departure_gate, arrival_gate, 
+        scheduled_departure, scheduled_arrival, actual_departure, 
+        actual_arrival
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+      RETURNING *`,
+      [
+        flight_id,
+        airline,
+        status,
+        departure_gate,
+        arrival_gate,
+        scheduled_departure,
+        scheduled_arrival,
+        actual_departure,
+        actual_arrival
+      ]
+    );
+
+    const newFlight = result.rows[0];
+    res.status(201).json({
+      message: 'Flight created',
+      flight: newFlight
+    });
+  } catch (error) {
+    
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.post("/subscribe", authenticate, async (req, res) => {
   const validation = subscriptionSchema.safeParse(req.body);
   if (!validation.success) {

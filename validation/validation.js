@@ -20,4 +20,16 @@ const subscriptionSchema = zod.object({
     user_id: zod.string().uuid(),
     flight_id: zod.string()
 });
-module.exports = {signupSchema, veryfyOTPSchema,loginSchema, subscriptionSchema};
+
+const createFlightSchema = zod.object({
+    flight_id: zod.string(),
+    airline: zod.string(),
+    status: zod.string(),
+    departure_gate: zod.string(),
+    arrival_gate: zod.string(),
+    scheduled_departure: zod.string(),
+    scheduled_arrival: zod.string(),
+    actual_departure: zod.string(),
+    actual_arrival: zod.string()
+});
+module.exports = {signupSchema, veryfyOTPSchema,loginSchema, subscriptionSchema , createFlightSchema};
