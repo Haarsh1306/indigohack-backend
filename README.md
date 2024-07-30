@@ -9,6 +9,7 @@ This is the backend for the Indigo Hack To Hire 2024 project. It provides API en
 - [Installation](#installation)
 - [Usage](#usage)
 - [API Endpoints](#api-endpoints)
+- [Project Screenshots](#project-screenshots)
 
 
 ## Project Overview
