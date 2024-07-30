@@ -7,8 +7,8 @@ const {
   createFlightSchema,
   updateFlightSchema,
 } = require("../validation/validation");
-const generateUpdateMessage  = require("../generateMessage");
 const { sendEmailMessage } = require("../kafka/producer");
+const generateMessage = require("../generateMessage");
 
 router.get("",authenticate, async (req, res) => {
   try {
@@ -212,7 +212,7 @@ router.put("/update/:flight_id", async (req, res) => {
  
     const updatedFlight = result.rows[0];
   
-    const message = generateUpdateMessage(updatedFlight);
+    const message = generateMessage(updatedFlight);
 
     const email = await pool.query(
       `SELECT u.email 

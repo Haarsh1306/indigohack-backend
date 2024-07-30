@@ -1,5 +1,6 @@
 const pool = require("./db/db");
 const sendEmail = require("./email");
+const generateMessage = require("./generateMessage");
 
 async function sendOTP(email, userId) {
   const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -24,7 +25,7 @@ async function sendOTP(email, userId) {
   }
 
   const subject = "Your OTP for verification at Indigohack";
-  const message = `Your OTP is ${otpCode}`;
+  const message = generateMessage(null,otpCode);
   await sendEmail(email, subject, message);
 
   await pool.query("COMMIT");

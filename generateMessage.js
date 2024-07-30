@@ -1,4 +1,4 @@
-const generateUpdateMessage = (flight) => {
+const generateMessage = (flight = null, otpCode = null) => {
   const htmlStyle = `
     <style>
       body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
@@ -11,6 +11,26 @@ const generateUpdateMessage = (flight) => {
       th { background-color: #f2f2f2; }
     </style>
   `;
+
+  const otpMessage = ` <html>
+    <head>${htmlStyle}</head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h2>Otp For Indigohack Login</h2>
+        </div>
+        <div class="content">
+          <p>Dear User,</p>
+          <p>Your OTP for Indigohack login is <strong>${otpCode}</strong></p>
+        </div>
+        <div class="footer">
+          <p>Best regards,<br>IndigoHack 2024</p>
+        </div>
+      </div>
+    </body>
+    </html> `;
+
+    if (otpCode!=null) return otpMessage;
 
   const cancelledMessage = `
     <html>
@@ -43,7 +63,9 @@ const generateUpdateMessage = (flight) => {
         </div>
         <div class="content">
           <p>Dear User,</p>
-          <p>We wanted to inform you of an update regarding your flight with flight number <strong>${flight.flight_id}</strong>:</p>
+          <p>We wanted to inform you of an update regarding your flight with flight number <strong>${
+            flight.flight_id
+          }</strong>:</p>
           <table>
             <tr>
               <th>Detail</th>
@@ -63,19 +85,35 @@ const generateUpdateMessage = (flight) => {
             </tr>
             <tr>
               <td>Scheduled Departure</td>
-              <td>${flight.scheduled_departure ? new Date(flight.scheduled_departure).toLocaleString() : "Not updated"}</td>
+              <td>${
+                flight.scheduled_departure
+                  ? new Date(flight.scheduled_departure).toLocaleString()
+                  : "Not updated"
+              }</td>
             </tr>
             <tr>
               <td>Scheduled Arrival</td>
-              <td>${flight.scheduled_arrival ? new Date(flight.scheduled_arrival).toLocaleString() : "Not updated"}</td>
+              <td>${
+                flight.scheduled_arrival
+                  ? new Date(flight.scheduled_arrival).toLocaleString()
+                  : "Not updated"
+              }</td>
             </tr>
             <tr>
               <td>Actual Departure</td>
-              <td>${flight.actual_departure ? new Date(flight.actual_departure).toLocaleString() : "Not updated"}</td>
+              <td>${
+                flight.actual_departure
+                  ? new Date(flight.actual_departure).toLocaleString()
+                  : "Not updated"
+              }</td>
             </tr>
             <tr>
               <td>Actual Arrival</td>
-              <td>${flight.actual_arrival ? new Date(flight.actual_arrival).toLocaleString() : "Not updated"}</td>
+              <td>${
+                flight.actual_arrival
+                  ? new Date(flight.actual_arrival).toLocaleString()
+                  : "Not updated"
+              }</td>
             </tr>
           </table>
           <p>Thank you for choosing our airline.</p>
@@ -87,8 +125,8 @@ const generateUpdateMessage = (flight) => {
     </body>
     </html>
   `;
-
+ 
   return flight.status === "Cancelled" ? cancelledMessage : updateMessage;
 };
 
-module.exports = generateUpdateMessage;
+module.exports = generateMessage;
