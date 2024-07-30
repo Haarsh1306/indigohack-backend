@@ -10,6 +10,7 @@ const {
 const { sendEmailMessage } = require("../kafka/producer");
 const generateMessage = require("../generateMessage");
 
+// Get flights data
 router.get("",authenticate, async (req, res) => {
   try {
     const query = `
@@ -33,6 +34,7 @@ router.get("",authenticate, async (req, res) => {
   }
 });
 
+// Create a flight
 router.post("/create",authenticate, async (req, res) => {
   const validation = createFlightSchema.safeParse(req.body);
   if (!validation.success) {
@@ -82,6 +84,7 @@ router.post("/create",authenticate, async (req, res) => {
   }
 });
 
+// Subscribe to a flight
 router.post("/subscribe", authenticate, async (req, res) => {
   const validation = subscriptionSchema.safeParse(req.body);
   if (!validation.success) {
@@ -114,6 +117,7 @@ router.post("/subscribe", authenticate, async (req, res) => {
   }
 });
 
+// Get subscription detail
 router.get("/subscriptions/:user_id", authenticate, async (req, res) => {
   const { user_id } = req.params;
   if (!user_id) {
@@ -141,6 +145,7 @@ router.get("/subscriptions/:user_id", authenticate, async (req, res) => {
   }
 });
 
+// Update flight data
 router.put("/update/:flight_id", authenticate ,async (req, res) => {
   const validation = updateFlightSchema.safeParse(req.body);
   if (!validation.success) {

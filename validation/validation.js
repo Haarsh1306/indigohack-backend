@@ -1,3 +1,4 @@
+// Validation schema
 const zod = require('zod');
 
 const signupSchema = zod.object({

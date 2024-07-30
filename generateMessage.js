@@ -1,3 +1,4 @@
+// Function to generate email message in form of html
 const generateMessage = (flight = null, otpCode = null) => {
   const htmlStyle = `
     <style>

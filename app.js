@@ -3,15 +3,19 @@ const express = require("express");
 const cors = require("cors");
 const authenticateToken = require("./middlewares/authenticate");
 const { startConsumer } = require("./kafka/consumer");
-const { connectProducer, sendEmailMessage } = require("./kafka/producer");
+const { connectProducer} = require("./kafka/producer");
 const app = express();
 app.use(cors());
 
 app.use(express.json());
 
+// Route related to user login and signup
 app.use("/api/v1/user", require("./routes/user"));
+
+// Route related to flight and subscription to a flight
 app.use("/api/v1/flight", require("./routes/flight"));
 
+// Route to validate jwt
 app.get("/api/v1/getme", authenticateToken, (req, res) => {
 
   res.json({
@@ -23,6 +27,7 @@ app.get("/api/v1/getme", authenticateToken, (req, res) => {
   });
 });
 
+// Starting kafka service
 startConsumer().catch(console.error);
 connectProducer().catch(console.error);
 
