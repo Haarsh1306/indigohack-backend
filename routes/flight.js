@@ -141,12 +141,15 @@ router.get("/subscriptions/:user_id", authenticate, async (req, res) => {
   }
 });
 
-router.put("/update/:flight_id", async (req, res) => {
+router.put("/update/:flight_id", authenticate ,async (req, res) => {
   const validation = updateFlightSchema.safeParse(req.body);
   if (!validation.success) {
     return res.status(400).json({ error: "Invalid input" });
   }
-
+  console.log(req.user)
+  if(req.user.userRole !== "admin"){
+    return res.status(403).json({error: "Unauthorized"})
+  }
   const flight_id = req.params.flight_id;
   const {
     status,
