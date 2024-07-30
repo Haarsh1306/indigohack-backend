@@ -51,8 +51,10 @@ router.post("/signup", async (req, res) => {
       userId: user.user_id,
       userEmail: user.email,
       userName: user.name,
+      userRole: user.role,  
     });
   } catch (error) {
+    await pool.query("ROLLBACK");
     console.error("Error in signup:", error);
     res.status(500).json({ error: "Internal server error" });
   }
@@ -130,6 +132,7 @@ router.post("/signin", async (req, res) => {
         userId: user.user_id,
         userEmail: user.email,
         userName: user.name,
+        userRole: user.role,
       });
     }
 
@@ -144,8 +147,9 @@ router.post("/signin", async (req, res) => {
       }
     );
 
-    res.json({ token, userId: user.user_id, userEmail: user.email });
+    res.json({ token, userId: user.user_id, userEmail: user.email, userName: user.name, userRole: user.role });
   } catch (error) {
+    await pool.query("ROLLBACK");
     console.error("Error in signin:", error);
     res.status(500).json({ message: "Internal server error" });
   }
