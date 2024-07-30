@@ -195,6 +195,9 @@ router.put("/update/:flight_id", async (req, res) => {
     return res.status(400).json({ error: "No fields to update" });
   }
 
+  fields.push(`updated_at = $${fields.length + 1}`);
+  values.push(new Date());
+
   query +=
     fields.join(", ") +
     " WHERE flight_id = $" +
