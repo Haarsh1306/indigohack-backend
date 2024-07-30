@@ -79,3 +79,36 @@ After installation, the server will be running on `http://localhost:3000` (or th
 - POST /api/v1/flight/subscribe - Subscribe to flight updates and push notification via mail
 - POST /api/v1/flight/subscription/:id - To retreive subscription details of a user.
 - GET api/v1/getme - To verify jwt
+
+## Project Screenshots
+- Signin page
+
+![Sign in page](./images/signin.png)
+
+- Signup page
+
+![Signup page](./images/signup.png)
+
+- Otp verify page
+
+![Verify otp page](./images/verify-otp.png)
+
+- Dashboard page
+
+![Dashboard page](./images/dashboard.png)
+
+- Admin Page
+
+![Admin page](./images/admin.png)
+
+- Update flight information
+
+![Update flight information](./images/update-flight-details.png)
+
+- Update email screenshot
+
+![Update email](./images/update-email.png)
+
+- Otp email screenshot
+
+![Otp email](./images/otp-email.png)
