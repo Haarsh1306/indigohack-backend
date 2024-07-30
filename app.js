@@ -19,6 +19,7 @@ app.get("/api/v1/getme", authenticateToken, (req, res) => {
     userId: req.user.userId,
     userEmail: req.user.userEmail,
     userName: req.user.userName,
+    userRole: req.user.userRole,
   });
 });
 

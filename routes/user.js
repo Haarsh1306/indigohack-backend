@@ -137,7 +137,7 @@ router.post("/signin", async (req, res) => {
     await pool.query("COMMIT");
 
     const token = jwt.sign(
-      { userId: user.user_id, userEmail: user.email, userName: user.name },
+      { userId: user.user_id, userEmail: user.email, userName: user.name, userRole: user.role },
       process.env.JWT_SECRET,
       {
         expiresIn: "1d",
