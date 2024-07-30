@@ -18,7 +18,7 @@ const sendEmail = async (to , subject , text) =>{
         },
         to: to,
         subject: subject,
-        text: text,
+        html: text,
       };
     await transporter.sendMail(mailOptions);
 }
