@@ -18,7 +18,7 @@ app.use("/api/v1/flight", require("./routes/flight"));
 // Route to validate jwt
 app.get("/api/v1/getme", authenticateToken, (req, res) => {
 
-  res.json({
+  res.status(200).json({
     message: "Authenticated",
     userId: req.user.userId,
     userEmail: req.user.userEmail,
