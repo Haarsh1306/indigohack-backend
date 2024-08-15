@@ -113,3 +113,6 @@ After installation, the server will be running on `http://localhost:3000` (or th
 - Otp email screenshot
 
 ![Otp email](./images/otp-email.png)
+
+### Project Frontend
+Github - https://github.com/Haarsh1306/indigohack-frontend
