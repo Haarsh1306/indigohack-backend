@@ -28,8 +28,8 @@ app.get("/api/v1/getme", authenticateToken, (req, res) => {
 });
 
 // Starting kafka service
-startConsumer().catch(console.error);
-connectProducer().catch(console.error);
+// startConsumer().catch(console.error);
+// connectProducer().catch(console.error);
 
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");

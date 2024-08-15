@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db/db");
 const authenticate = require("../middlewares/authenticate");
+const sendEmail = require("../email");
 const {
   subscriptionSchema,
   createFlightSchema,
@@ -236,7 +237,12 @@ router.put("/update/:flight_id", authenticate ,async (req, res) => {
       )
     }
     if(emailList.length > 0){
-      sendEmailMessage(emailList, message);
+      // const value = JSON.parse(message.value.toString());
+      const subject = "Indigohack flight update email";
+      for (const email of emailList) {
+        await sendEmail(email, subject, message);
+      }
+      // sendEmailMessage(emailList, message);
     }
 
 
